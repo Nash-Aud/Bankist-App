@@ -62,11 +62,13 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
     //emptying the container first
     containerMovements.innerHTML = "";
 
-    movements.forEach(function (mov, i) {
+    const movs = sort ? movements.slice().sort((a, b) => a - b) : movements; 
+
+    movs.forEach(function (mov, i) {
         const type = mov > 0 ? "deposit" : "withdrawal";
 
         const html = `
@@ -175,9 +177,46 @@ btnTransfer.addEventListener("click", function(e) {
   }
 });
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
+btnLoan.addEventListener("click", function(e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount / 10))
+  {
+    //add movement
+    currentAccount.movements.push(amount);
+
+    //Update UI
+    updateUI(currentAccount);
+  }
+  inputLoanAmount.value = "";
+});
+
+btnClose.addEventListener("click", function(e) {
+  e.preventDefault();  
+  
+  if (inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin) {
+    const index = accounts.findIndex(acc => acc.username === currentAccount.username);
+    console.log(index);
+    
+    //Delete Account
+    accounts.splice(index, 1);
+    
+    //Hide UI
+    containerApp.style.opacity = 0;
+  }
+  inputCloseUsername.value = inputClosePin.value = "";  
+});
+
+let sorted = false;
+btnSort.addEventListener("click", function(e) {
+  e.preventDefault();
+
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
+
 
 const currencies = new Map([
   ['USD', 'United States dollar'],
